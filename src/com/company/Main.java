@@ -28,31 +28,30 @@ public class Main {
             n = nStart;
             for (int i = 0; i < nSteps; i++) {
                 System.out.print(methodNames[methodID] + " n=" + n + " step=" + i);
-                times[methodID][i] = 0;
+                times[methodID][i] = -1; //set time to negative one to show no results when printing
                 for (trialCount = 0; (trialCount < maxTrials) && (times[methodID][i] < maxTime); trialCount++) {
                     switch (methodID) {
-                        case 0:
+                        case 0 -> {
                             startTime = System.nanoTime();
                             fibRecur(n);
                             times[methodID][i] += System.nanoTime() - startTime;
-                            break;
-                        case 1:
+                        }
+                        case 1 -> {
                             startTime = System.nanoTime();
                             fibCache(n);
                             times[methodID][i] += System.nanoTime() - startTime;
-                            break;
-                        case 2:
+                        }
+                        case 2 -> {
                             startTime = System.nanoTime();
                             fibLoop(n);
                             times[methodID][i] += System.nanoTime() - startTime;
-                            break;
-                        case 3:
+                        }
+                        case 3 -> {
                             startTime = System.nanoTime();
                             fibMatrix(n);
                             times[methodID][i] += System.nanoTime() - startTime;
-                            break;
-                        default:
-                            throw new IllegalStateException("Unexpected value: " + methodID);
+                        }
+                        default -> throw new IllegalStateException("Unexpected value: " + methodID);
                     }
                 }
                 n *= nScale;
@@ -62,23 +61,40 @@ public class Main {
         }
 
         //print results
-        String headerFormatString = "%10s|%13s%12s%15s|%13s%12s%15s|%13s%12s%15s|\n";
-        String tableFormatString = "%10d|%13d%12.3f%15.3f|%13d%12.3f%15.3f|%13d%12.3f%15.3f|\n";
-        String firstTableFormatString = "%10d|%13d%12s%15s|%13d%12s%15s|%13d%12s%15s|\n";
-        System.out.println("3sum results with nStart=" + nStart + ", nSteps=" + nSteps + ", maxTrials=" + maxTrials);
-        System.out.format(headerFormatString, "", "", "Brute 3sum", "", "", "Fast 3sum", "", "", "Fastest 3sum", "");
-        System.out.format(headerFormatString, "N",
-                "Time", nScale + "x Ratio", "Ex. " + nScale+"x Ratio",
-                "Time", nScale + "x Ratio", "Ex. " + nScale+"x Ratio",
-                "Time", nScale + "x Ratio", "Ex. " + nScale+"x Ratio");
+        String column1HeaderFormat = "%10s|";
+        String tableHeaderFormat = "%13s%12s%15s|";
+        String tableFirstEntryFormat = "%13d%12s%15s|";
+        String column1Format = "%10d|";
+        String tableEntryFormat = "%13d%12.3f%15.3f|";
+
+        //configuration string
+        System.out.println("Results with nStart=" + nStart + ", nSteps=" + nSteps + ", maxTrials=" + maxTrials);
+
+        //header
+        System.out.format(column1HeaderFormat, "");
+        for (int i = 0; i < numMethods; i++)
+            System.out.format(tableHeaderFormat, "", methodNames[i], "");
+        System.out.println();
+
+        System.out.format(column1HeaderFormat, "N");
+        for (int i = 0; i < numMethods; i++)
+            System.out.format(tableHeaderFormat, "Time", nScale + "x Ratio", "Ex. " + nScale + "x Ratio");
+        System.out.println();
+
         n = nStart;
-        System.out.format(firstTableFormatString, n, method1Times[0], "N/A", "N/A", method2Times[0], "N/A", "N/A", method3Times[0], "N/A", "N/A");
+        //first entry (has N/A entries, needs special handling)
+        System.out.format(column1Format, n);
+        for (int i = 0; i < numMethods; i++)
+            System.out.format(tableFirstEntryFormat, times[i][0], "N/A", "N/A");
+        System.out.println();
         n *= nScale;
+
+        //printing remaining entries
         for (int i = 1; i < nSteps; i++) {
-            System.out.format(tableFormatString, n,
-                    method1Times[i], (double) method1Times[i] / method1Times[i-1], 2.0,
-                    method2Times[i], (double) method2Times[i] / method2Times[i-1], 2.0,
-                    method3Times[i], (double) method3Times[i] / method3Times[i-1], 2.0);
+            System.out.format(column1Format, n);
+            for (int k = 0; k < numMethods; k++)
+                System.out.format(tableEntryFormat, times[k][i], (double) times[k][i] / times[k][i-1], 2.0);
+            System.out.println();
             n *= nScale;
         }
     }
