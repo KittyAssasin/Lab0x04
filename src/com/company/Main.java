@@ -23,30 +23,32 @@ public class Main {
         int numMethods = methodNames.length;
         long[][] times = new long[numMethods][nSteps];
 
-        int[] generatedArray;
-
-        //generic multi-method testing loop
+        //multi-method testing loop
         for (int methodID = 0; methodID < numMethods; methodID++) {
             n = nStart;
             for (int i = 0; i < nSteps; i++) {
                 System.out.print(methodNames[methodID] + " n=" + n + " step=" + i);
                 times[methodID][i] = 0;
                 for (trialCount = 0; (trialCount < maxTrials) && (times[methodID][i] < maxTime); trialCount++) {
-                    generatedArray = generateUniqueArray(n, -n * 2, n * 2);
                     switch (methodID) {
                         case 0:
                             startTime = System.nanoTime();
-                            threeSumBrute(generatedArray);
+                            fibRecur(n);
                             times[methodID][i] += System.nanoTime() - startTime;
                             break;
                         case 1:
                             startTime = System.nanoTime();
-                            threeSumFast(generatedArray);
+                            fibCache(n);
                             times[methodID][i] += System.nanoTime() - startTime;
                             break;
                         case 2:
                             startTime = System.nanoTime();
-                            threeSumFastest(generatedArray);
+                            fibLoop(n);
+                            times[methodID][i] += System.nanoTime() - startTime;
+                            break;
+                        case 3:
+                            startTime = System.nanoTime();
+                            fibMatrix(n);
                             times[methodID][i] += System.nanoTime() - startTime;
                             break;
                         default:
@@ -81,58 +83,27 @@ public class Main {
         }
     }
 
-    //3sum problem: are there three numbers in this list that sum to 0?
-    //3sum brute force (N^3)
-    private static boolean threeSumBrute(int[] array) {
-        int len = array.length;
+    //fib recursive
+    private static int fibRecur(int nth) {
 
-        for (int i = 0; i < len-2; i++)
-            for (int k = i+1; k < len-1; k++)
-                for (int m = k+1; m < len; m++)
-                    if ((array[i] + array[k] + array[m]) == 0)
-                        return true;
-        return false;
+        return -1;
     }
 
-    //3sum faster (N^2 * log(N))
-    private static boolean threeSumFast(int[] array) {
-        int len = array.length;
-        Arrays.sort(array);
-        for (int i = 0; i < len-2; i++)
-            for (int k = i+1; k < len-1; k++) {
-                int result = Arrays.binarySearch(array, -array[i] - array[k]);
-                if (result >= 0) //check if key found
-                    return true;
-            }
-        return false;
+    //fib cached
+    private static int fibCache(int nth) {
+
+        return -1;
     }
 
-    //3sum fastest (N^2)
-    private static boolean threeSumFastest(int[] array) {
-        int len = array.length;
-        Arrays.sort(array);
-        for (int i = 0; i < len - 2; i++) {
-            int leftIndex = i + 1;
-            int rightIndex = len - 1;
-            while (leftIndex < rightIndex) {
-                int sum = array[i] + array[leftIndex] + array[rightIndex];
-                if (sum == 0)
-                    return true;
-                else if (sum > 0) //if the sum is > 0, reduce the size of the largest element
-                    rightIndex--;
-                else             //otherwise increase the size of the smallest element
-                    leftIndex++;
-            }
-        }
-        return false;
+    //classic fib
+    private static int fibLoop(int nth) {
+
+        return -1;
     }
 
-    private static int[] generateUniqueArray(int count, int min, int max) {
-        Set<Integer> set = new HashSet<>();
-        Random r = new Random();
-        while (set.size() < count)
-            set.add(r.nextInt(max - min + 1) + min);
-        return set.stream().mapToInt(i -> i).toArray();
-    }
+    //fibMatrix
+    private static int fibMatrix(int nth) {
 
+        return -1;
+    }
 }
