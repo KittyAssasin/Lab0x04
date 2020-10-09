@@ -1,18 +1,12 @@
 package com.company;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
-
 public class Main {
 
     public static void main(String[] args) {
 
-        int n;
-        int nStart = 32; //min 3
-        int nSteps = 24;
-        int nScale = 2;
+        int x;
+        int xStart = 1;
+        int xMax = 35;
         long startTime;
         int maxTrials = 30;
         int trialCount;
@@ -21,42 +15,40 @@ public class Main {
         String[] methodNames = {"fibRecur", "fibCache", "fibLoop", "fibMatrix"};
 
         int numMethods = methodNames.length;
-        long[][] times = new long[numMethods][nSteps];
+        long[][] times = new long[numMethods][xMax];
 
         //multi-method testing loop
         for (int methodID = 0; methodID < numMethods; methodID++) {
-            n = nStart;
-            for (int i = 0; i < nSteps; i++) {
-                System.out.print(methodNames[methodID] + " n=" + n + " step=" + i);
-                times[methodID][i] = -1; //set time to negative one to show no results when printing
-                for (trialCount = 0; (trialCount < maxTrials) && (times[methodID][i] < maxTime); trialCount++) {
+            for (x = xStart; x <= xMax; x++) {
+                System.out.print(methodNames[methodID] + " x=" + x);
+                times[methodID][x-1] = -1; //set time to negative one to show no results when printing
+                for (trialCount = 0; (trialCount < maxTrials) && (times[methodID][x-1] < maxTime); trialCount++) {
                     switch (methodID) {
                         case 0 -> {
                             startTime = System.nanoTime();
-                            fibRecur(n);
-                            times[methodID][i] += System.nanoTime() - startTime;
+                            fibRecur(x-1);
+                            times[methodID][x-1] += System.nanoTime() - startTime;
                         }
                         case 1 -> {
                             startTime = System.nanoTime();
-                            fibCache(n);
-                            times[methodID][i] += System.nanoTime() - startTime;
+                            fibCache(x-1);
+                            times[methodID][x-1] += System.nanoTime() - startTime;
                         }
                         case 2 -> {
                             startTime = System.nanoTime();
-                            fibLoop(n);
-                            times[methodID][i] += System.nanoTime() - startTime;
+                            fibLoop(x-1);
+                            times[methodID][x-1] += System.nanoTime() - startTime;
                         }
                         case 3 -> {
                             startTime = System.nanoTime();
-                            fibMatrix(n);
-                            times[methodID][i] += System.nanoTime() - startTime;
+                            fibMatrix(x-1);
+                            times[methodID][x-1] += System.nanoTime() - startTime;
                         }
                         default -> throw new IllegalStateException("Unexpected value: " + methodID);
                     }
                 }
-                n *= nScale;
                 System.out.println(" TrialCount=" + trialCount);
-                times[methodID][i] /= trialCount;
+                times[methodID][x-1] /= trialCount;
             }
         }
 
@@ -68,7 +60,7 @@ public class Main {
         String tableEntryFormat = "%13d%12.3f%15.3f|";
 
         //configuration string
-        System.out.println("Results with nStart=" + nStart + ", nSteps=" + nSteps + ", maxTrials=" + maxTrials);
+        System.out.println("Results with Start=" + xStart + ", xMax=" + xMax + ", maxTrials=" + maxTrials);
 
         //header
         System.out.format(column1HeaderFormat, "");
@@ -78,48 +70,72 @@ public class Main {
 
         System.out.format(column1HeaderFormat, "N");
         for (int i = 0; i < numMethods; i++)
-            System.out.format(tableHeaderFormat, "Time", nScale + "x Ratio", "Ex. " + nScale + "x Ratio");
+            System.out.format(tableHeaderFormat, "Time", "2x Ratio", "Ex. 2x Ratio");
         System.out.println();
 
-        n = nStart;
+        x = xStart;
         //first entry (has N/A entries, needs special handling)
-        System.out.format(column1Format, n);
+        System.out.format(column1Format, x);
         for (int i = 0; i < numMethods; i++)
             System.out.format(tableFirstEntryFormat, times[i][0], "N/A", "N/A");
         System.out.println();
-        n *= nScale;
 
         //printing remaining entries
-        for (int i = 1; i < nSteps; i++) {
-            System.out.format(column1Format, n);
+        for (x = xStart + 1; x <= xMax; x++) {
+            System.out.format(column1Format, x);
             for (int k = 0; k < numMethods; k++)
-                System.out.format(tableEntryFormat, times[k][i], (double) times[k][i] / times[k][i-1], 2.0);
+                System.out.format(tableEntryFormat, times[k][x-1], (double) times[k][x-1] / times[k][x-2], 2.0);
             System.out.println();
-            n *= nScale;
         }
     }
 
     //fib recursive
     private static int fibRecur(int nth) {
-
-        return -1;
+        if (nth <= 1)
+            return nth;
+        return fibRecur(nth - 1) + fibRecur(nth - 2);
     }
 
     //fib cached
     private static int fibCache(int nth) {
+        int[] cache = new int[nth + 2];
+        cache[0] = 0;
+        cache[1] = 1;
 
-        return -1;
+        for (int i = 2; i <= nth; i++)
+            cache[i] = cache[i-1] + cache[i-2];
+
+        return cache[nth];
     }
 
     //classic fib
     private static int fibLoop(int nth) {
+        int a, b, c;
+        a = 0;
+        b = 1;
 
-        return -1;
+        if (nth == 0)
+            return a;
+
+        for (int i = 2; i <= nth; i++) {
+            c = a + b;
+            a = b;
+            b = c;
+        }
+
+        return b;
     }
 
     //fibMatrix
     private static int fibMatrix(int nth) {
+        if (nth == 0)
+            return 0;
 
-        return -1;
+        int[][] init = {{1,1},{1,0}};
+        Matrix m = new Matrix(init);
+
+        m = m.power(nth - 1);
+
+        return m.get(0,0);
     }
 }
